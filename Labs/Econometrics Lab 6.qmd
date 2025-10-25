@@ -1,0 +1,99 @@
+---
+title: "Econometrics Lab 6"
+format: pdf
+editor: visual
+---
+
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| 1        | 2        | 3        |
+
+: Demonstration of Markdown Table Syntax
+
+| Header 1 | Header 2 | Header 3 | Header 4 |
+|---------:|:---------|----------|:--------:|
+|    Right | Left     | Default  |  Center  |
+
+: Demonstration of Markdown table syntax with aligned columns
+
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| 1        | 2        | 3        |
+
+: Table for reference {#table-example}
+
++---------------+--------------------+
+| # Col1        | # Col2             |
++---------------+--------------------+
+| 12            |                    |
++---------------+--------------------+
+| 5462          | 77                 |
++---------------+--------------------+
+|               | 99                 |
++---------------+--------------------+
+
+: Table using the Visual Editor
+
+\begin{tabular}{lcr}
+Header 1 & Header 2 & Header 3\\
+Left & Center & Right\\
+\end{tabular}
+
+
+\begin{tabular}{l|c|r}
+\hline
+Header 1 & Header 2 & Header 3\\
+\hline
+Left & Center & Right\\
+\hline
+\end{tabular}
+\end{center}
+
+
+\begin{table}[!h]
+\caption{This is a caption}
+\begin{center}
+\begin{tabular}{l|c|r}
+\hline
+Header 1 & Header 2 & Header 3\\
+\hline
+Left & Center & Right\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+```{r}
+
+  
+d <- data.frame("Header 1" = c("Left",1),
+                "Header 2" = c("Center",2),
+                "Header 3" = c("Right", 3),
+                check.names = FALSE)
+knitr::kable(d,
+             format = "pipe",
+             booktabs = T,
+             escape = F,
+             align = c("l","c","r"),
+             longtable = T,
+             caption = "kable Table")
+```
+
+```{r}
+
+library(kableExtra)
+
+d <- data.frame("Header 1" = c("Left",1),
+                "Header 2" = c("Center",2),
+                "Header 3" = c("Right", 3),
+                check.names = FALSE)
+knitr::kable(d,
+             format = "latex",
+             booktabs = T,
+             escape = F,
+             align = c("l","c","r"),
+             longtable = T,
+             caption = "kable Table Centered")%>%
+  kable_styling(position = "center")
+```
+

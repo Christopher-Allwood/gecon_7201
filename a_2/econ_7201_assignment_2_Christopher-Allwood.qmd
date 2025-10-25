@@ -90,8 +90,8 @@ $$
 (DGP) which we will simulate in `R`:
 
 ```{r}
-eval = TRUE
-echo = TRUE
+#| eval: true
+#| echo: true
 
 set.seed(123)
 n <- 25
@@ -108,7 +108,9 @@ y <- dgp + e
 > (a) Compute the OLS estimator of $\beta_2$ and its standard error using the `lm()` command in `R` for the model $y_i=\beta_1+\beta_2 x_i+\epsilon_i$ based on the DGP given above.
 
 ```{r}
-lm(y~x)
+OLS_Estimator <-lm(y~x)
+
+summary(OLS_Estimator)
 ```
 
 
@@ -117,13 +119,19 @@ lm(y~x)
 
 ```{r}
 X <- cbind(1, x)
+residuals <-resid(OLS_Estimator)
+sigmasqr_hat <-sum(residuals^2/(n-2))
+trasposeX.Xinv <-solve(t(X) %*% X)
+VarianceMatrix <-sigmasqr_hat * trasposeX.Xinv
+beta2_se <-sqrt(VarianceMatrix[2,2])
 
-beta_hat2 <- solve(t(X) %*%X) %*% (t(X)%*%y)
+#Comparing the result of beta_se with the standard error of x from the OLS_Estimates regression output.
 
-beta_hat2
-summary
+beta2_se
+coef(summary(OLS_Estimator))["x", "Std. Error"]
 
-cbind(matrix= as.numeric(beta_hat2), lm=coef(lm(y~x)))
+
+cbind(matrix= as.numeric(beta2_se), coef(summary(OLS_Estimator))["x", "Std. Error"])
 ```
 
 
@@ -131,25 +139,31 @@ cbind(matrix= as.numeric(beta_hat2), lm=coef(lm(y~x)))
 > (c) Compute White's heteroskedasticity consistent covariance matrix estimator using matrices in R and report the White estimator of the standard error of $\hat\beta_2$. Compare this with that from 3 (a) above.
 
 ```{r}
-resid <-y-X%*% beta_hat2
 
-WHCC_beta_hat2 <- matrix(0, 
-                         nrow=2, 
-                         ncol = 2)
+White_X <- cbind(1,x)
+transposeX.Xinv <-solve(t(X)%*%X)
 
-for (i in 1:n) {
-  WHCC_X <- X[i, , drop=FALSE]
-  WHCC_beta_hat2 <- WHCC_beta_hat2+ as.numeric(resid[i]^2)* t(WHCC_X) %*% WHCC_X
-}
+#Extracting the residuals from the original regression output
 
-WHCC_Resid <- solve(t(X)%*% X)
+resid_extract <-resid(OLS_Estimator)
 
-White_Result <-WHCC_Resid %*% WHCC_beta_hat2%*%WHCC_Resid
+# Transforming the residuals
+resid_extract_hat <-diag(resid_extract^2)
 
-SE_WHCC_Beta_hat2 <-sqrt(White_Result[2,2])
+White_resid <- t(White_X)%*% resid_extract_hat %*% White_X
 
-beta_hat2
-SE_WHCC_Beta_hat2
+CovWhite <- transposeX.Xinv %*% White_resid %*% transposeX.Xinv
+
+# Extracting the standard corrected standard errors from 
+
+White_SE_Beta2 <- sqrt(CovWhite[2,2])
+
+# Comparing results
+
+White_SE_Beta2
+coef(summary(OLS_Estimator))["x", "Std. Error"]
+cbind(White_SE_Beta2,coef(summary(OLS_Estimator))["x", "Std. Error"])
+
 
 ```
 
@@ -163,6 +177,7 @@ Consider the model $$y_i=\beta_0+\beta_1x_{1,i}-\beta_2x_{2,i}+\epsilon_i.$$ Let
     (a) Set the seed to 1, i.e., `set.seed(1)`.
     
 ```{r}
+#rm(list=ls())
 set.seed(1)
 ```
     
@@ -177,9 +192,9 @@ n=(100)
     (c) Generate the following model $$y_i=2+3.5x_{1,i}-9.2x_{2,i}+\epsilon_i,$$ where $x_1\sim N(3,6)$, $x_2\sim N(2,4)$, and $\epsilon\sim N(0,100)$. To create a normally distributed variable, use the `rnorm(n, mean, sd)` command in R. 
     
 ```{r}
-x_1 <- rnorm(n,mean=3,sd=6)
-x_2 <-rnorm(n,mean=2,sd=4)
-epsilon <- rnorm(n,mean=0,sd=100)
+x_1 <- rnorm(n,mean=3,sd=sqrt(6))
+x_2 <-rnorm(n,mean=2,sd=sqrt(4))
+epsilon <- rnorm(n,mean=0,sd=sqrt(100))
 y <-2+3.5*x_1-9.2*x_2+epsilon
 model4c <- lm(y ~x_1+x_2)
 summary(model4c)
@@ -204,9 +219,9 @@ M=1000
 estimates_hat <- matrix( , nrow=M, ncol=3)
 
 for (i in 1:M){
-  x_1hat <- rnorm(n,mean=3,sd=6)
-  x_2hat <-rnorm(n,mean=2,sd=4)
-  epsilonhat <- rnorm(n,mean=0,sd=100)
+  x_1hat <- rnorm(n,mean=3,sd=sqrt(6))
+  x_2hat <-rnorm(n,mean=2,sd=sqrt(4))
+  epsilonhat <- rnorm(n,mean=0,sd=sqrt(100))
   yhat <-2+3.5*x_1hat-9.2*x_2hat+epsilonhat
   model4c_hat <- lm(yhat ~x_1hat+x_2hat)
   summary(model4c_hat)
@@ -222,14 +237,26 @@ lm(yhat~x_1hat+x_2hat)$coefficients
     (f) Using `hist()`, plot the sampling distributions of the coefficient estimates, $\beta_1$ and $\beta_2$. 
     
 ```{r}
+#| eval: true
+#| echo: true
+#| fig-cap: $"Sampling distribution from 1000 iterations for \hat{\beta_1}"$
+
+
 hist(estimates_hat[, "Beta1_hat"],
-     main="Sampling Distribution from 1000 iterations",
-     xlab = x_1hat,
+     main="Sampling Distribution from for Beta-1-hat from 1000 iterations",
+     xlab = "Beta-1-hat",
      col= "blue")
+```
+ 
+ 
+```{r}
+#| eval: true
+#| echo: true
+#| fig-cap: $"Sampling distribution from 1000 iterations for \hat{\beta_2}"$
 
 hist(estimates_hat[, "Beta2_hat"],
-     main="Sampling Distribution from 1000 iterations",
-     xlab = x_2hat,
+     main="Sampling Distribution from for Beta-2-hat from 1000 iterations",
+     xlab = "Beta-2-hat",
      col= "green")
 ```
     
@@ -238,28 +265,35 @@ hist(estimates_hat[, "Beta2_hat"],
     
     
 ```{r}
+#| eval: true
+#| echo: true
+#| fig-cap: $"Sampling distribution from 1000 iterations for \hat{\beta_1} highlighting the mean of the distribution"$
 
 hist(estimates_hat[ , "Beta1_hat"],
-     main="Sampling Distribution from 1000 iterations",
-     xlab = x_1hat,
+     main= "Sampling Distribution from for Beta-1-hat from 1000 iterations",
+     xlab = "Beta-1-hat",
      col= "blue")
 
 
 abline(v= mean(estimates_hat[, "Beta1_hat"]), 
        col= "red", 
        lwd=2, 
-       lty=2)
+       lty="dashed")
 ```
 ```{r}
+#| eval: true
+#| echo: true
+#| fig-cap: $"Sampling distribution from 1000 iterations for \hat{\beta_2} highlighting the mean  of the distribution"$
+
 hist(estimates_hat[ , "Beta2_hat"],
-     main="Sampling Distribution from 1000 iterations",
-     xlab = x_2hat,
+     main="Sampling Distribution from for Beta-2-hat from 1000 iterations",
+     xlab = "Beta-2-hat",
      col= "green")
 
 abline(v= mean(estimates_hat[, "Beta2_hat"]), 
        col= "red", 
        lwd=2, 
-       lty=2)
+       lty= "dashed")
 ```
     
 

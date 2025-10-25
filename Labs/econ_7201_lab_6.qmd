@@ -1,0 +1,365 @@
+---
+title: |
+  | ECON 2204 
+  | Introduction to Data Analysis for Economics and Finance
+subtitle: |
+    | Lab 8: Tables in Quarto
+format: 
+  pdf:
+    include-in-header: 
+      text: |
+        \usepackage{fancyhdr}
+        \fancypagestyle{style1}{
+        \fancyhf{}
+        \fancyfoot[C]{\thepage}
+        \renewcommand{\headrulewidth}{0.4pt}
+        }
+
+        \fancypagestyle{style2}{
+        \fancyhf{}
+        \fancyhead[R]{Lab 8: Tables in Quarto}
+        \fancyhead[L]{ECON 2204}
+        \fancyfoot[C]{\thepage}
+        \renewcommand{\headrulewidth}{1pt}
+        }
+        \pagestyle{style2}
+---
+
+\vspace{-1in}
+
+# Creating Tables in Quarto
+
+Quarto offers many different ways for creating tables. We will cover a few of these in this lab. To start, we will be working in the **Source** editor (click the "Source" button in the top left corner).
+
+There are two types of tables we want to consider. First, are tables summarizing R output within R chunks. There are a number of packages to help with that. The one we will be focusing on today is the command `kable()` available in the `knitr` package. To use it, we can use `knitr::kable()`. Second, are tables summarizing information in text. There are two types of tables we can use, simple tables and LaTeX tables.
+
+## Markdown Tables
+
+Markdown tables are an easy way to display information. However, simple tables are cumbersome and not helpful for long tables or complex tables.\
+
+To create a markdown table, underline the top row using "-". Separate columns using the pipe character "\|" (these are also known as pipe tables). To include a caption, use the syntax \`: Table Caption' after the table. E.g.\
+
+```         
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+|1         | 2        | 3        |
+
+: Demonstration of markdown table syntax
+```
+
+Gives\
+
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| 1        | 2        | 3        |
+
+: Demonstration of markdown table syntax
+
+-   The beginning and ending pipe characters are optional, but pipes are required between all columns.
+
+-   Colons ":" can be used for column alignment.
+
+    -   `:----` gives left aligned columns
+
+    -   `----:` gives right aligned columns
+
+    -   `:----:` gives centered columns
+
+    -   The default alignment is left
+
+    -   E.g.,
+
+```         
+| Header 1 | Header 2 | Header 3 | Header 4 |
+|---------:|:---------|----------|:--------:|
+|   Right    |  Left   |    Default (Left)   |    Centre  |
+
+: Demonstration of markdown table syntax with aligned columns
+```
+
+Gives
+
+| Header 1 | Header 2 | Header 3 | Header 4 |
+|---------:|:---------|----------|:--------:|
+|   Right    |  Left   |    Default (Left)   |    Centre  |
+
+: Demonstration of markdown table syntax with aligned columns
+
+### Cross-Referecing
+
+To reference a table, include the syntax `{#tbl-tablereference}` after the caption. Reference it using `@`, i.e., `@tbl-tablereference`. E.g., See `@tbl-example` 
+
+```         
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+|1         | 2        | 3        |
+
+: Table for Reference {#tbl-example}
+```
+
+Gives: See @tbl-example
+
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+|1         | 2        | 3        |
+
+: Table for Reference {#tbl-example}
+
+### Visual Editor
+
+The cells of pipe tables cannot contain block elements like paragraphs and lists, and cannot span multiple lines, which is frustrating. For simple tables with only a few rows, it is straight forward to create them directly in markdown. As tables get larger, it makes sense to use an authoring tool. Switch now to the **visual editor**, click "Visual" in the top left corner of the Quarto file window.
+
+There is now a new menu along the top of the Quarto document (See @fig-menu).
+
+![Visual Editor Menu](menu.png){#fig-menu}
+
+On the right-hand side, note the **Table** option. Click "Table" and select "Insert table" from the drop-down menu.
+
+-   Set the number of rows to 3 and the number of columns to 2.
+
+-   Add the caption "Table Using Visual Editor"
+
+-   Make sure the box **Include table header** is selected. Click **OK**.
+
+| Col1 | Col2 |
+|------|------|
+|      |      |
+|      |      |
+|      |      |
+
+: Table Using Visual Editor
+
+- Quarto automatically generates a pipe table for you. Return to the **Source** editor to check. However, if you want to dit this table, it is best to do it in the visual editor.
+
+-   Now you have a table that you can edit similar to a Word table. **Right click** your mouse over any cell to see your options (See @fig-table_menu)
+
+![Table Options](table%20menu.png){#fig-table_menu width=50%}
+
+-   Note the **Align Column** option for simple alignment. Make **Col 2** center aligned (See @fig-align).
+
+![Setting Table Column Alignment](table_alignment.png){#fig-align width=50%}
+
+-   You can add longer texts to each cell, including bulleted and numbered lists. However, we must still use some caution as editing markdown tables is not as straightforward as editing word tables.
+
+- Another editor is [TablesGenerator](https://www.tablesgenerator.com/markdown_tables), which allows you to edit tables in your browser.
+
+
+## LaTeX Table and Tabular Commands
+
+Another option for creating tables for PDFs is to use LaTeX syntax. These tables will not be produced if compiled to a Word or HTML format. 
+
+-   If working solely in LaTeX, one would create a table using `\begin{tabular}...\end{tabular}`.
+
+-   When using `tabular` you have to specify the number of rows and the alignment for each row, i.e. l,r, or c. Columns are separated using `&`. To end a line, use `\\`. E.g.\
+
+```         
+\begin{tabular}{lcr}
+Header 1 & Header 2 & Header 3\\
+Left & Center & Right\\
+\end{tabular}
+```
+
+Gives\
+
+```{=tex}
+\begin{tabular}{lcr}
+Header 1 & Header 2 & Header 3\\
+Left & Center & Right\\
+\end{tabular}
+```
+\
+
+-   Note that there are no borders. `tabular` requires more information for borders; however this makes them more flexible than simple tables. To include vertical borders, simply include a `|` between columns when defining the alignment for each column, e.g. `{c|l|r}`. For a horizontal border use `hline` where you would like a horizontal line. E.g.\
+
+```         
+\begin{tabular}{l|c|r}
+\hline
+Header 1 & Header 2 & Header 3\\
+\hline
+Left & Center & Right\\
+\hline
+\end{tabular}
+```
+
+Gives\
+
+```{=tex}
+\begin{tabular}{l|c|r}
+\hline
+Header 1 & Header 2 & Header 3\\
+\hline
+Left & Center & Right\\
+\hline
+\end{tabular}
+```
+-   Also note that LaTeX tables do not automatically center like simple tables. To center the table, use `\begin{center}\begin{tabular}...\end{tabular}\end{center}`. E.g.\
+
+```         
+\begin{center}
+\begin{tabular}{l|c|r}
+\hline
+Header 1 & Header 2 & Header 3\\
+\hline
+Left & Center & Right\\
+\hline
+\end{tabular}
+\end{center}
+```
+
+Gives:\
+
+```{=tex}
+\begin{center}
+\begin{tabular}{l|c|r}
+\hline
+Header 1 & Header 2 & Header 3\\
+\hline
+Left & Center & Right\\
+\hline
+\end{tabular}
+\end{center}
+```
+-   To include a caption in a latex table, you have to use `\begin{table}...\end{table}` around your tabular commands and include `\caption{}` at the beginning (if you want the cation on top) or at the end (if you want your caption on bottom). E.g.\
+
+```         
+\begin{table}[!h]
+\caption{This is a caption}
+\begin{center}
+\begin{tabular}{l|c|r}
+\hline
+Header 1 & Header 2 & Header 3\\
+\hline
+Left & Center & Right\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+```
+
+Gives:\
+
+```{=tex}
+\begin{table}[!h]
+\caption{This is a caption}
+\begin{center}
+\begin{tabular}{l|c|r}
+\hline
+Header 1 & Header 2 & Header 3\\
+\hline
+Left & Center & Right\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+```
+-   Note: the \[!h\] keeps the table in place. Otherwise it may 'float' throughout the document.\
+
+## Producing Tables using R Packages
+
+-   The R package we will be using is `knitr`, specifically, the command `kable()`.
+
+-   `kable()` converts any data frame in R into a pipe table. A data frame is another word for dataset; however, some output from our analyses will be saved a a data frame. `kable()` makes it easy to print this output\
+
+E.g.
+
+```{r}
+#| echo: true
+
+d <- data.frame("Header 1" = c("Left",1),
+                "Header 2" = c("Center",2), 
+                "Header 3" = c("Right",3),
+                check.names = FALSE) # check.names makes sure that the headers don't change
+
+knitr::kable(d,
+             format = "pipe",
+             booktabs = T,
+             escape = FALSE,
+             align = c("l","c","r"), # Set column alignment
+             longtable= T, # Keeps the table where you want it in the document
+             caption = "kable Table") # Include Caption
+```
+
+- To center the table, use a package called `kableExtra`. To do this type `install.packages("kableExtra")` in the console. To call an R package, we can either call `library(package.name)` or `require(package.name)`. `kableExtra` allows one to modify LaTeX tables; however, the tables will not be converted into Word.
+
+-   To call `kableExtra`, simply type `library(kableExtra)` at the start of the code. To center, include the following code after `kable()`:\
+
+```         
+kable()%>%
+kable_styling(position = "center")
+```
+
+```{r, echo =TRUE}
+
+library(kableExtra)
+
+d <- data.frame("Header 1" = c("Left",1),
+                "Header 2" = c("Center",2), 
+                "Header 3" = c("Right",3),
+                check.names = FALSE) # check.names makes sure that the headers don't change
+
+knitr::kable(d,
+             format = "latex",
+             booktabs = T,
+             escape = FALSE,
+             align = c("l","c","r"),
+             longtable= T,
+             caption = "kable Table Centered")%>% 
+  kable_styling(position = "center")
+```
+
+# Exercises
+
+**Exercise 1**\
+
+Create the following table using a pipe table:
+
+| Outcome                |  1  |  2  |  3  |
+|------------------------|:---:|:---:|:---:|
+| Probability            | 1/3 | 1/3 | 1/3 |
+| Cumulative Probability | 1/3 | 2/3 |  1  |
+
+: Pipe Table
+
+**Exercise 2**\
+
+Create the following table using LaTeX:
+
+```{=tex}
+\begin{table}[!h]
+\caption{Latex Table}
+\begin{center}
+\begin{tabular}{lccc}
+\hline
+Outcome & 1 & 2 & 3\\
+\hline
+Probability & 1/3 & 1/3 & 1/3\\
+Cumulative Probability & 1/3 & 2/3 & 1\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+```
+ 
+
+**Exercise 3**\
+
+Create the following table using kable:
+
+```{r}
+require(kableExtra)
+
+d <- data.frame("Outcome" = c("Probability","Cumulative Probability"),
+                "1" = c("1/3","1/3"), 
+                "2" = c("1/3","2/3"),
+                "3" = c("1/3","1"),
+                check.names = FALSE) 
+
+knitr::kable(d,
+             format = "latex",
+             booktabs = T,
+             escape = FALSE,
+             align = c("l","c","c","c"),
+             longtable= T,
+             caption = "kable Table")%>% 
+  kable_styling(position = "center")
+```
